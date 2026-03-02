@@ -15,7 +15,7 @@ arch:
 # Ingress = аддон встраивается прямо в боковую панель HA
 # Без ingress нужно было бы открывать отдельный порт
 ingress: true
-ingress_port: 8099
+ingress_port: 3001
 
 # Иконка в боковой панели HA
 panel_icon: mdi:view-dashboard
