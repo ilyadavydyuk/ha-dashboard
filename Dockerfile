@@ -13,7 +13,8 @@ RUN npm run build
 FROM node:20-alpine
 
 # Устанавливаем nginx
-RUN apk add --no-cache nginx nginx-mod-http-subs-filter
+RUN apk add --no-cache nginx
+
 WORKDIR /app
 
 COPY --from=builder /app/.next/standalone ./
