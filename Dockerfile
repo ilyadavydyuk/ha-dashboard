@@ -1,33 +1,33 @@
-# ─── Стадия 1: Сборка Next.js ───────────────────────────────────────────────
-# Используем Node 20 Alpine (лёгкий Linux)
+# ─── Стадия 1: Сборка Next.js ────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Сначала копируем только package.json — Docker кэширует слои.
-# Если код изменился, но зависимости нет — npm ci не перезапустится.
 COPY app/package*.json ./
 RUN npm ci
 
-# Теперь копируем весь код и собираем
 COPY app/ ./
 RUN npm run build
 
 # ─── Стадия 2: Продакшн образ ────────────────────────────────────────────────
-# Берём чистый Alpine, без dev-зависимостей (~200MB вместо ~800MB)
 FROM node:20-alpine
+
+# Устанавливаем nginx
+RUN apk add --no-cache nginx nginx-mod-http-substitutions-filter
 
 WORKDIR /app
 
-# Next.js standalone mode — всё что нужно для запуска в одном месте
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Скрипт запуска
+# Копируем конфиг nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
-EXPOSE 3000
+# nginx слушает на 8099 (стандарт для HA Ingress)
+EXPOSE 8099
 
 CMD ["/run.sh"]

@@ -11,13 +11,11 @@ arch:
   - amd64     # x86 серверы / виртуалки
 
 # Порт нашего Next.js сервера
-ports:
-  "3000/tcp": 3000
 
 # Ingress = аддон встраивается прямо в боковую панель HA
 # Без ingress нужно было бы открывать отдельный порт
 ingress: true
-ingress_port: 3000
+ingress_port: 8099
 
 # Иконка в боковой панели HA
 panel_icon: mdi:view-dashboard
