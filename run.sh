@@ -5,7 +5,5 @@ node /app/server.js &
 
 sleep 3
 
-# Проверяем конфиг nginx перед запуском
 nginx -t
-
-nginx -g "daemon off;"
+nginx -g "daemon off;" || cat /tmp/nginx_error.log
