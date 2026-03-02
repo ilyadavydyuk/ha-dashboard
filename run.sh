@@ -4,5 +4,8 @@ echo "Starting HA Dashboard..."
 # Запускаем Next.js в фоне
 node /app/server.js &
 
-# Запускаем nginx на переднем плане
+# Ждём пока Next.js поднимется
+sleep 3
+
+# Запускаем nginx
 nginx -g "daemon off;"
