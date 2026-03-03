@@ -15,7 +15,7 @@ export function useEntities() {
   useEffect(() => {
     // Получаем токен и URL от нашего API route
     // (не хардкодим — токен не должен быть в браузере)
-    fetch("/api/ha/token")
+    fetch("./api/ha/token")
       .then((r) => r.json())
       .then(async ({ url, token }) => {
         const auth = createLongLivedTokenAuth(url, token);
