@@ -21,6 +21,10 @@ ingress_port: 3000
 panel_icon: mdi:view-dashboard
 panel_title: "Dashboard"
 
+init: false
+ingress_stream: true
+hassio_api: true
+
 # Самое важное — даёт доступ к HA REST API и WebSocket
 # Supervisor автоматически создаст SUPERVISOR_TOKEN в env
 homeassistant_api: true
