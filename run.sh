@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Получаем ingress path через Supervisor REST API
+# Получаем ingress path
 INGRESS_PATH=$(wget -qO- \
   --header="Authorization: Bearer ${SUPERVISOR_TOKEN}" \
   http://supervisor/addons/self/info \
@@ -9,4 +9,8 @@ INGRESS_PATH=$(wget -qO- \
 
 echo "Ingress path: $INGRESS_PATH"
 
-HOSTNAME=0.0.0.0 PORT=3000 node /app/server.js
+# Собираем Next.js с правильным assetPrefix
+NEXT_PUBLIC_ASSET_PREFIX=$INGRESS_PATH npm run build
+
+# Запускаем
+HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js
