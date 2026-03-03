@@ -1,8 +1,8 @@
-export async function GET() {
-  // Отдаём токен и URL клиенту
-  // SUPERVISOR_TOKEN доступен только на сервере
+export async function GET(request: Request) {
+  const host = request.headers.get("host") || "";
+  const proto = request.headers.get("x-forwarded-proto") || "https";
+
   return Response.json({
-    url: "http://supervisor/core",
-    token: process.env.SUPERVISOR_TOKEN,
+    url: `${proto}://${host}`,
   });
 }

@@ -1,10 +1,52 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useEntities } from "@/hooks/useEntities";
 import { EntityCard } from "@/components/entity-card";
 
 export default function Home() {
-  const { entities, connected } = useEntities();
+  const [token, setToken] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const tok = localStorage.getItem("ha_token") || "";
+    setToken(tok);
+    setSaved(!!tok);
+  }, []);
+
+  const { entities, connected } = useEntities(saved ? token : "");
+
+  if (!saved) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="bg-card border border-border rounded-lg p-6 w-full max-w-md">
+          <h1 className="text-xl font-bold text-foreground mb-4">Настройка</h1>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm text-muted-foreground">
+                Long-lived токен
+              </label>
+              <input
+                className="w-full mt-1 bg-muted text-foreground rounded px-3 py-2 text-sm border border-border"
+                placeholder="eyJ0eXAi..."
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+              />
+            </div>
+            <button
+              className="w-full bg-primary text-primary-foreground rounded px-3 py-2 text-sm font-medium"
+              onClick={() => {
+                localStorage.setItem("ha_token", token);
+                setSaved(true);
+              }}
+            >
+              Сохранить
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background p-6">
