@@ -12,8 +12,6 @@ RUN npm run build
 # ─── Стадия 2: Продакшн образ ────────────────────────────────────────────────
 FROM node:20-alpine
 
-# Устанавливаем nginx
-RUN apk add --no-cache nginx
 
 WORKDIR /app
 
@@ -21,8 +19,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Копируем конфиг nginx
-COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
