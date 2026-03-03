@@ -68,7 +68,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background p-6">
-      {/* Шапка */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">HA Dashboard</h1>
@@ -102,7 +101,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Карточки */}
       {cards.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
           <p className="text-lg mb-2">Дашборд пустой</p>
@@ -112,14 +110,12 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {cards.map((card) => {
             const entity = entities[card.entity_id];
+            if (!entity) return null;
             return (
               <div key={card.id} className="relative">
                 <EntityCard
                   entity={entity}
-                  onToggle={(entity_id) => {
-                    // callService будем добавлять следующим шагом
-                    console.log("toggle", entity_id);
-                  }}
+                  onToggle={(entity_id) => console.log("toggle", entity_id)}
                 />
                 {editMode && (
                   <button
@@ -135,7 +131,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Модалка выбора */}
       <EntityPicker
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
