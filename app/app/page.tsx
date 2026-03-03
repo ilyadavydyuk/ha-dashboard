@@ -5,6 +5,7 @@ import { useEntities } from "@/hooks/useEntities";
 import { EntityCard } from "@/components/entity-card";
 import { EntityPicker } from "@/components/entity-picker";
 import { loadConfig, saveConfig, type CardConfig } from "@/lib/config";
+import { SettingsPanel } from "@/components/settings";
 
 export default function Home() {
   const [token, setToken] = useState("");
@@ -28,6 +29,11 @@ export default function Home() {
     saveConfig({ cards: newCards });
   };
 
+  const wallpaper =
+    typeof window !== "undefined"
+      ? localStorage.getItem("ha_wallpaper") || ""
+      : "";
+
   const removeCard = (id: string) => {
     const newCards = cards.filter((c) => c.id !== id);
     setCards(newCards);
@@ -36,7 +42,18 @@ export default function Home() {
 
   if (!saved) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center p-6">
+      <main
+        className="min-h-screen bg-background p-6"
+        style={
+          wallpaper
+            ? {
+                backgroundImage: `url(${wallpaper})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : {}
+        }
+      >
         <div className="bg-card border border-border rounded-lg p-6 w-full max-w-md">
           <h1 className="text-xl font-bold text-foreground mb-4">Настройка</h1>
           <div className="space-y-3">
@@ -82,6 +99,12 @@ export default function Home() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <SettingsPanel
+            onReset={() => {
+              saveConfig({ cards: [] });
+              setCards([]);
+            }}
+          />
           <button
             onClick={() => setEditMode(!editMode)}
             className={`text-sm px-3 py-1.5 rounded-md border transition-colors ${
