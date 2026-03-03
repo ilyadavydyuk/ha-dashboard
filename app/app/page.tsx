@@ -115,9 +115,11 @@ export default function Home() {
             return (
               <div key={card.id} className="relative">
                 <EntityCard
-                  name={entity?.attributes.friendly_name || card.entity_id}
-                  state={entity?.state || "..."}
-                  active={entity?.state === "on"}
+                  entity={entity}
+                  onToggle={(entity_id) => {
+                    // callService будем добавлять следующим шагом
+                    console.log("toggle", entity_id);
+                  }}
                 />
                 {editMode && (
                   <button
