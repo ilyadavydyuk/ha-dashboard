@@ -20,7 +20,7 @@ export default function Home() {
     setCards(loadConfig().cards);
   }, []);
 
-  const { entities, connected } = useEntities(saved ? token : "");
+  const { entities, connected, toggle } = useEntities(saved ? token : "");
 
   const addCard = (entity_id: string) => {
     const newCards = [...cards, { id: crypto.randomUUID(), entity_id }];
@@ -113,10 +113,7 @@ export default function Home() {
             if (!entity) return null;
             return (
               <div key={card.id} className="relative">
-                <EntityCard
-                  entity={entity}
-                  onToggle={(entity_id) => console.log("toggle", entity_id)}
-                />
+                <EntityCard entity={entity} onToggle={toggle} />
                 {editMode && (
                   <button
                     onClick={() => removeCard(card.id)}
