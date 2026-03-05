@@ -84,7 +84,18 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-background p-6">
+    <main
+      className="min-h-screen bg-background p-6"
+      style={
+        wallpaper
+          ? {
+              backgroundImage: `url(${wallpaper})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : {}
+      }
+    >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">HA Dashboard</h1>
