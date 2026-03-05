@@ -29,11 +29,10 @@ export default function Home() {
     saveConfig({ cards: newCards });
   };
 
-  const [wallpaper, setWallpaper] = useState("");
-
-  useEffect(() => {
-    setWallpaper(localStorage.getItem("ha_wallpaper") || "");
-  }, []);
+  const [wallpaper, setWallpaper] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("ha_wallpaper") || "";
+  });
 
   const removeCard = (id: string) => {
     const newCards = cards.filter((c) => c.id !== id);
