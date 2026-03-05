@@ -10,6 +10,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+const WALLPAPERS = [
+  { id: "night-stars", label: "Звёзды", url: "./wallpapers/1.jpg" },
+  { id: "mountains", label: "Горы", url: "./wallpapers/2.jpg" },
+];
+
 interface SettingsProps {
   onReset: () => void;
 }
@@ -21,36 +26,9 @@ export function SettingsPanel({ onReset }: SettingsProps) {
   const [wallpaper, setWallpaper] = useState(
     () => localStorage.getItem("ha_wallpaper") || "",
   );
-  const [uploading, setUploading] = useState(false);
 
   const saveToken = () => {
     localStorage.setItem("ha_token", token);
-    window.location.reload();
-  };
-
-  const uploadWallpaper = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("./api/wallpaper", {
-      method: "POST",
-      body: formData,
-    });
-    const { url } = await res.json();
-    localStorage.setItem("ha_wallpaper", url);
-    setWallpaper(url);
-    setUploading(false);
-    window.location.reload();
-  };
-
-  const removeWallpaper = async () => {
-    await fetch("./api/wallpaper", { method: "DELETE" });
-    localStorage.removeItem("ha_wallpaper");
-    setWallpaper("");
     window.location.reload();
   };
 
@@ -94,28 +72,39 @@ export function SettingsPanel({ onReset }: SettingsProps) {
           {/* Обои */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-foreground">Обои</label>
-            {wallpaper && (
-              <img
-                src={wallpaper}
-                className="w-full h-24 object-cover rounded-md"
-                alt="wallpaper preview"
-              />
-            )}
-            <label
-              className={`text-sm px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-center cursor-pointer ${uploading ? "opacity-50" : ""}`}
-            >
-              {uploading ? "Загрузка..." : "Загрузить картинку"}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={uploadWallpaper}
-                disabled={uploading}
-              />
-            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {WALLPAPERS.map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => {
+                    localStorage.setItem("ha_wallpaper", w.url);
+                    setWallpaper(w.url);
+                    window.location.reload();
+                  }}
+                  className={`relative rounded-md overflow-hidden h-16 border-2 transition-colors ${
+                    wallpaper === w.url
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
+                >
+                  <img
+                    src={w.url}
+                    className="w-full h-full object-cover"
+                    alt={w.label}
+                  />
+                  <span className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black/50 py-0.5 text-center">
+                    {w.label}
+                  </span>
+                </button>
+              ))}
+            </div>
             {wallpaper && (
               <button
-                onClick={removeWallpaper}
+                onClick={() => {
+                  localStorage.removeItem("ha_wallpaper");
+                  setWallpaper("");
+                  window.location.reload();
+                }}
                 className="text-sm px-3 py-1.5 rounded-md border border-border text-muted-foreground"
               >
                 Убрать обои
