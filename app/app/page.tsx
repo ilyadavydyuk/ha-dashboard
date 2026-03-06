@@ -6,6 +6,7 @@ import { EntityCard } from "@/components/entity-card";
 import { EntityPicker } from "@/components/entity-picker";
 import { loadConfig, saveConfig, type CardConfig } from "@/lib/config";
 import { SettingsPanel } from "@/components/settings";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [token, setToken] = useState("");
@@ -20,7 +21,6 @@ export default function Home() {
     setSaved(!!tok);
     setCards(loadConfig().cards);
 
-    // Применяем обои на body
     const w = localStorage.getItem("ha_wallpaper") || "";
     if (w) {
       document.body.style.backgroundImage = `url(${w})`;
@@ -40,6 +40,16 @@ export default function Home() {
 
   const removeCard = (id: string) => {
     const newCards = cards.filter((c) => c.id !== id);
+    setCards(newCards);
+    saveConfig({ cards: newCards });
+  };
+
+  const toggleSize = (id: string) => {
+    const newCards = cards.map((c) =>
+      c.id === id
+        ? { ...c, size: c.size === "large" ? "small" : ("large" as const) }
+        : c,
+    );
     setCards(newCards);
     saveConfig({ cards: newCards });
   };
@@ -123,20 +133,39 @@ export default function Home() {
           <p className="text-sm">Нажми «+ Добавить» чтобы добавить карточку</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {cards.map((card) => {
             const entity = entities[card.entity_id];
             if (!entity) return null;
+            const isLarge = card.size === "large";
             return (
-              <div key={card.id} className="relative">
-                <EntityCard entity={entity} onToggle={toggle} />
+              <div
+                key={card.id}
+                className={cn(
+                  "relative",
+                  isLarge ? "col-span-2 row-span-2" : "col-span-1",
+                )}
+              >
+                <EntityCard
+                  entity={entity}
+                  size={card.size}
+                  onToggle={toggle}
+                />
                 {editMode && (
-                  <button
-                    onClick={() => removeCard(card.id)}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full text-xs flex items-center justify-center"
-                  >
-                    ✕
-                  </button>
+                  <>
+                    <button
+                      onClick={() => toggleSize(card.id)}
+                      className="absolute -top-2 -left-2 w-6 h-6 bg-muted border border-border text-foreground rounded-full text-xs flex items-center justify-center"
+                    >
+                      {isLarge ? "↙" : "↗"}
+                    </button>
+                    <button
+                      onClick={() => removeCard(card.id)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full text-xs flex items-center justify-center"
+                    >
+                      ✕
+                    </button>
+                  </>
                 )}
               </div>
             );

@@ -7,6 +7,7 @@ import { type HassEntity } from "home-assistant-js-websocket";
 
 interface EntityCardProps {
   entity: HassEntity;
+  size?: "small" | "large";
   onToggle?: (entity_id: string) => void;
 }
 
@@ -33,20 +34,42 @@ function getIcon(domain: string) {
   }
 }
 
-export function EntityCard({ entity, onToggle }: EntityCardProps) {
+export function EntityCard({
+  entity,
+  size = "small",
+  onToggle,
+}: EntityCardProps) {
   const domain = getDomain(entity.entity_id);
   const name = entity.attributes.friendly_name || entity.entity_id;
   const isActive = entity.state === "on";
+  const isLarge = size === "large";
 
   const renderContent = () => {
     switch (domain) {
       case "light":
       case "switch":
         return (
-          <div className="flex items-center justify-between mt-3">
+          <div
+            className={cn(
+              "flex items-center justify-between",
+              isLarge ? "mt-6" : "mt-3",
+            )}
+          >
             <div>
-              <p className="text-sm text-muted-foreground">{name}</p>
-              <p className="text-lg font-semibold text-foreground">
+              <p
+                className={cn(
+                  "text-muted-foreground",
+                  isLarge ? "text-base" : "text-sm",
+                )}
+              >
+                {name}
+              </p>
+              <p
+                className={cn(
+                  "font-semibold text-foreground",
+                  isLarge ? "text-2xl mt-1" : "text-lg",
+                )}
+              >
                 {isActive ? "Включён" : "Выключен"}
               </p>
             </div>
@@ -59,11 +82,28 @@ export function EntityCard({ entity, onToggle }: EntityCardProps) {
 
       case "sensor":
         return (
-          <div className="mt-3">
-            <p className="text-sm text-muted-foreground">{name}</p>
-            <p className="text-2xl font-bold text-foreground">
+          <div className={cn(isLarge ? "mt-6" : "mt-3")}>
+            <p
+              className={cn(
+                "text-muted-foreground",
+                isLarge ? "text-base" : "text-sm",
+              )}
+            >
+              {name}
+            </p>
+            <p
+              className={cn(
+                "font-bold text-foreground",
+                isLarge ? "text-5xl mt-2" : "text-2xl",
+              )}
+            >
               {entity.state}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
+              <span
+                className={cn(
+                  "font-normal text-muted-foreground ml-1",
+                  isLarge ? "text-xl" : "text-sm",
+                )}
+              >
                 {entity.attributes.unit_of_measurement || ""}
               </span>
             </p>
@@ -72,15 +112,37 @@ export function EntityCard({ entity, onToggle }: EntityCardProps) {
 
       case "climate":
         return (
-          <div className="mt-3">
-            <p className="text-sm text-muted-foreground">{name}</p>
-            <p className="text-2xl font-bold text-foreground">
+          <div className={cn(isLarge ? "mt-6" : "mt-3")}>
+            <p
+              className={cn(
+                "text-muted-foreground",
+                isLarge ? "text-base" : "text-sm",
+              )}
+            >
+              {name}
+            </p>
+            <p
+              className={cn(
+                "font-bold text-foreground",
+                isLarge ? "text-5xl mt-2" : "text-2xl",
+              )}
+            >
               {entity.attributes.current_temperature ?? entity.state}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
+              <span
+                className={cn(
+                  "font-normal text-muted-foreground ml-1",
+                  isLarge ? "text-xl" : "text-sm",
+                )}
+              >
                 °C
               </span>
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p
+              className={cn(
+                "text-muted-foreground mt-1",
+                isLarge ? "text-sm" : "text-xs",
+              )}
+            >
               Целевая: {entity.attributes.temperature ?? "—"}°C
             </p>
           </div>
@@ -88,9 +150,21 @@ export function EntityCard({ entity, onToggle }: EntityCardProps) {
 
       default:
         return (
-          <div className="mt-3">
-            <p className="text-sm text-muted-foreground">{name}</p>
-            <p className="text-lg font-semibold text-foreground">
+          <div className={cn(isLarge ? "mt-6" : "mt-3")}>
+            <p
+              className={cn(
+                "text-muted-foreground",
+                isLarge ? "text-base" : "text-sm",
+              )}
+            >
+              {name}
+            </p>
+            <p
+              className={cn(
+                "font-semibold text-foreground",
+                isLarge ? "text-2xl mt-1" : "text-lg",
+              )}
+            >
               {entity.state}
             </p>
           </div>
@@ -101,12 +175,14 @@ export function EntityCard({ entity, onToggle }: EntityCardProps) {
   return (
     <Card
       className={cn(
-        "transition-all duration-200",
+        "transition-all duration-200 h-full",
         isActive && "border-primary bg-primary/10",
       )}
     >
-      <CardContent className="p-4">
-        <div className="text-2xl">{getIcon(domain)}</div>
+      <CardContent className={cn("h-full", isLarge ? "p-6" : "p-4")}>
+        <div className={cn(isLarge ? "text-4xl" : "text-2xl")}>
+          {getIcon(domain)}
+        </div>
         {renderContent()}
       </CardContent>
     </Card>

@@ -1,6 +1,9 @@
+export type CardSize = "small" | "large";
+
 export type CardConfig = {
   id: string;
   entity_id: string;
+  size?: CardSize;
 };
 
 export type DashboardConfig = {
