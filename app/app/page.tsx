@@ -45,9 +45,14 @@ export default function Home() {
   };
 
   const toggleSize = (id: string) => {
-    const newCards = cards.map((c) =>
+    const newCards: CardConfig[] = cards.map((c) =>
       c.id === id
-        ? { ...c, size: c.size === "large" ? "small" : ("large" as const) }
+        ? {
+            ...c,
+            size: (c.size === "large"
+              ? "small"
+              : "large") as CardConfig["size"],
+          }
         : c,
     );
     setCards(newCards);
