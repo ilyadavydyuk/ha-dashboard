@@ -6,19 +6,42 @@ export type CardConfig = {
   size?: CardSize;
 };
 
-export type DashboardConfig = {
+export type SectionConfig = {
+  id: string;
+  title: string;
   cards: CardConfig[];
 };
 
+export type DashboardConfig = {
+  sections: SectionConfig[];
+};
+
 const DEFAULT_CONFIG: DashboardConfig = {
-  cards: [],
+  sections: [],
 };
 
 export function loadConfig(): DashboardConfig {
   if (typeof window === "undefined") return DEFAULT_CONFIG;
   try {
     const raw = localStorage.getItem("ha_dashboard_config");
-    return raw ? JSON.parse(raw) : DEFAULT_CONFIG;
+    if (!raw) return DEFAULT_CONFIG;
+    const parsed = JSON.parse(raw);
+    // Миграция старого формата (cards -> sections)
+    if (parsed.cards && !parsed.sections) {
+      return {
+        sections:
+          parsed.cards.length > 0
+            ? [
+                {
+                  id: crypto.randomUUID(),
+                  title: "Главная",
+                  cards: parsed.cards,
+                },
+              ]
+            : [],
+      };
+    }
+    return parsed;
   } catch {
     return DEFAULT_CONFIG;
   }

@@ -2,24 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { useEntities } from "@/hooks/useEntities";
-import { EntityCard } from "@/components/entity-card";
-import { EntityPicker } from "@/components/entity-picker";
-import { loadConfig, saveConfig, type CardConfig } from "@/lib/config";
+import { DashboardSection } from "@/components/dashboard-section";
+import {
+  loadConfig,
+  saveConfig,
+  type SectionConfig,
+  type DashboardConfig,
+} from "@/lib/config";
 import { SettingsPanel } from "@/components/settings";
-import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [token, setToken] = useState("");
   const [saved, setSaved] = useState(false);
-  const [cards, setCards] = useState<CardConfig[]>([]);
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [config, setConfig] = useState<DashboardConfig>({ sections: [] });
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     const tok = localStorage.getItem("ha_token") || "";
     setToken(tok);
     setSaved(!!tok);
-    setCards(loadConfig().cards);
+    setConfig(loadConfig());
 
     const w = localStorage.getItem("ha_wallpaper") || "";
     if (w) {
@@ -32,31 +34,31 @@ export default function Home() {
 
   const { entities, connected, toggle } = useEntities(saved ? token : "");
 
-  const addCard = (entity_id: string) => {
-    const newCards = [...cards, { id: crypto.randomUUID(), entity_id }];
-    setCards(newCards);
-    saveConfig({ cards: newCards });
+  const addSection = () => {
+    const newConfig: DashboardConfig = {
+      sections: [
+        ...config.sections,
+        { id: crypto.randomUUID(), title: "Новая секция", cards: [] },
+      ],
+    };
+    setConfig(newConfig);
+    saveConfig(newConfig);
   };
 
-  const removeCard = (id: string) => {
-    const newCards = cards.filter((c) => c.id !== id);
-    setCards(newCards);
-    saveConfig({ cards: newCards });
+  const updateSection = (updated: SectionConfig) => {
+    const newConfig: DashboardConfig = {
+      sections: config.sections.map((s) => (s.id === updated.id ? updated : s)),
+    };
+    setConfig(newConfig);
+    saveConfig(newConfig);
   };
 
-  const toggleSize = (id: string) => {
-    const newCards: CardConfig[] = cards.map((c) =>
-      c.id === id
-        ? {
-            ...c,
-            size: (c.size === "large"
-              ? "small"
-              : "large") as CardConfig["size"],
-          }
-        : c,
-    );
-    setCards(newCards);
-    saveConfig({ cards: newCards });
+  const deleteSection = (id: string) => {
+    const newConfig: DashboardConfig = {
+      sections: config.sections.filter((s) => s.id !== id),
+    };
+    setConfig(newConfig);
+    saveConfig(newConfig);
   };
 
   if (!saved) {
@@ -93,6 +95,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background/60 backdrop-blur-sm p-6">
+      {/* Шапка */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">HA Dashboard</h1>
@@ -109,8 +112,9 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <SettingsPanel
             onReset={() => {
-              saveConfig({ cards: [] });
-              setCards([]);
+              const empty: DashboardConfig = { sections: [] };
+              setConfig(empty);
+              saveConfig(empty);
             }}
           />
           <button
@@ -123,67 +127,38 @@ export default function Home() {
           >
             {editMode ? "Готово" : "Изменить"}
           </button>
-          <button
-            onClick={() => setPickerOpen(true)}
-            className="text-sm px-3 py-1.5 rounded-md bg-primary text-primary-foreground"
-          >
-            + Добавить
-          </button>
+          {editMode && (
+            <button
+              onClick={addSection}
+              className="text-sm px-3 py-1.5 rounded-md bg-primary text-primary-foreground"
+            >
+              + Секция
+            </button>
+          )}
         </div>
       </div>
 
-      {cards.length === 0 ? (
+      {/* Секции */}
+      {config.sections.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
           <p className="text-lg mb-2">Дашборд пустой</p>
-          <p className="text-sm">Нажми «+ Добавить» чтобы добавить карточку</p>
+          <p className="text-sm">Нажми «Изменить» → «+ Секция» чтобы начать</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
-          {cards.map((card) => {
-            const entity = entities[card.entity_id];
-            if (!entity) return null;
-            const isLarge = card.size === "large";
-            return (
-              <div
-                key={card.id}
-                className={cn(
-                  "relative",
-                  isLarge ? "col-span-2 row-span-2" : "col-span-1",
-                )}
-              >
-                <EntityCard
-                  entity={entity}
-                  size={card.size}
-                  onToggle={toggle}
-                />
-                {editMode && (
-                  <>
-                    <button
-                      onClick={() => toggleSize(card.id)}
-                      className="absolute -top-2 -left-2 w-6 h-6 bg-muted border border-border text-foreground rounded-full text-xs flex items-center justify-center"
-                    >
-                      {isLarge ? "↙" : "↗"}
-                    </button>
-                    <button
-                      onClick={() => removeCard(card.id)}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full text-xs flex items-center justify-center"
-                    >
-                      ✕
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
+        <div className="flex flex-col gap-4">
+          {config.sections.map((section) => (
+            <DashboardSection
+              key={section.id}
+              section={section}
+              entities={entities}
+              editMode={editMode}
+              onToggle={toggle}
+              onUpdate={updateSection}
+              onDelete={() => deleteSection(section.id)}
+            />
+          ))}
         </div>
       )}
-
-      <EntityPicker
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        entities={entities}
-        onSelect={addCard}
-      />
     </main>
   );
 }
