@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { type HassEntities } from "home-assistant-js-websocket";
 import { type SectionConfig, type CardConfig } from "@/lib/config";
 import { useState } from "react";
+import { Plus, Trash2, Maximize2, Minimize2, X } from "lucide-react";
 
 interface DashboardSectionProps {
   section: SectionConfig;
@@ -27,13 +28,14 @@ export function DashboardSection({
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const addCard = (entity_id: string) => {
-    const newCards = [...section.cards, { id: crypto.randomUUID(), entity_id }];
-    onUpdate({ ...section, cards: newCards });
+    onUpdate({
+      ...section,
+      cards: [...section.cards, { id: crypto.randomUUID(), entity_id }],
+    });
   };
 
   const removeCard = (id: string) => {
-    const newCards = section.cards.filter((c) => c.id !== id);
-    onUpdate({ ...section, cards: newCards });
+    onUpdate({ ...section, cards: section.cards.filter((c) => c.id !== id) });
   };
 
   const toggleSize = (id: string) => {
@@ -53,20 +55,22 @@ export function DashboardSection({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-background/40 backdrop-blur-sm p-4",
-        editMode && "border-dashed border-primary/50",
+        "rounded-2xl p-4 transition-all duration-300",
+        editMode
+          ? "border border-dashed border-white/20 bg-white/2"
+          : "border border-white/6 bg-white/2",
       )}
     >
-      {/* Заголовок секции */}
+      {/* Заголовок */}
       <div className="flex items-center justify-between mb-4">
         {editMode ? (
           <input
-            className="text-lg font-semibold bg-transparent border-b border-border text-foreground focus:outline-none focus:border-primary"
+            className="text-sm font-semibold tracking-widest uppercase bg-transparent text-white/60 focus:text-white focus:outline-none border-b border-white/20 focus:border-white/50 transition-colors pb-0.5"
             value={section.title}
             onChange={(e) => onUpdate({ ...section, title: e.target.value })}
           />
         ) : (
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-white/40">
             {section.title}
           </h2>
         )}
@@ -74,27 +78,28 @@ export function DashboardSection({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPickerOpen(true)}
-              className="text-xs px-2 py-1 rounded-md bg-primary text-primary-foreground"
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
             >
-              + Карточка
+              <Plus size={12} />
+              Карточка
             </button>
             <button
               onClick={onDelete}
-              className="text-xs px-2 py-1 rounded-md bg-destructive text-white"
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
             >
-              Удалить
+              <Trash2 size={12} />
             </button>
           </div>
         )}
       </div>
 
-      {/* Сетка карточек */}
+      {/* Сетка */}
       {section.cards.length === 0 ? (
-        <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
-          {editMode ? "Нажми «+ Карточка» чтобы добавить" : "Нет карточек"}
+        <div className="h-20 flex items-center justify-center text-white/20 text-sm">
+          {editMode ? "Добавь карточку →" : ""}
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-3" style={{ gridAutoRows: "8vw" }}>
           {section.cards.map((card) => {
             const entity = entities[card.entity_id];
             if (!entity) return null;
@@ -116,15 +121,19 @@ export function DashboardSection({
                   <>
                     <button
                       onClick={() => toggleSize(card.id)}
-                      className="absolute -top-2 -left-2 w-5 h-5 bg-muted border border-border text-foreground rounded-full text-xs flex items-center justify-center z-10"
+                      className="absolute top-1.5 left-1.5 w-6 h-6 bg-black/60 backdrop-blur text-white/70 rounded-lg text-xs flex items-center justify-center hover:bg-black/80 transition-colors z-10"
                     >
-                      {isLarge ? "↙" : "↗"}
+                      {isLarge ? (
+                        <Minimize2 size={10} />
+                      ) : (
+                        <Maximize2 size={10} />
+                      )}
                     </button>
                     <button
                       onClick={() => removeCard(card.id)}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-white rounded-full text-xs flex items-center justify-center z-10"
+                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500/80 backdrop-blur text-white rounded-lg text-xs flex items-center justify-center hover:bg-red-500 transition-colors z-10"
                     >
-                      ✕
+                      <X size={10} />
                     </button>
                   </>
                 )}

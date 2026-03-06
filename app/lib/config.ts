@@ -12,12 +12,28 @@ export type SectionConfig = {
   cards: CardConfig[];
 };
 
-export type DashboardConfig = {
+export type TabConfig = {
+  id: string;
+  title: string;
+  icon: string;
   sections: SectionConfig[];
 };
 
+export type WidgetType = "clock-digital" | "clock-analog";
+
+export type WidgetConfig = {
+  id: string;
+  type: WidgetType;
+};
+
+export type DashboardConfig = {
+  tabs: TabConfig[];
+  widgets: WidgetConfig[];
+};
+
 const DEFAULT_CONFIG: DashboardConfig = {
-  sections: [],
+  tabs: [],
+  widgets: [],
 };
 
 export function loadConfig(): DashboardConfig {
@@ -26,21 +42,25 @@ export function loadConfig(): DashboardConfig {
     const raw = localStorage.getItem("ha_dashboard_config");
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw);
-    // Миграция старого формата (cards -> sections)
-    if (parsed.cards && !parsed.sections) {
+
+    // Миграция: sections -> tabs
+    if (parsed.sections && !parsed.tabs) {
       return {
-        sections:
-          parsed.cards.length > 0
-            ? [
-                {
-                  id: crypto.randomUUID(),
-                  title: "Главная",
-                  cards: parsed.cards,
-                },
-              ]
-            : [],
+        tabs: [
+          {
+            id: crypto.randomUUID(),
+            title: "Главная",
+            icon: "🏠",
+            sections: parsed.sections,
+          },
+        ],
+        widgets: [],
       };
     }
+
+    // Миграция: добавь widgets если нет
+    if (!parsed.widgets) parsed.widgets = [];
+
     return parsed;
   } catch {
     return DEFAULT_CONFIG;

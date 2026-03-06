@@ -16,10 +16,12 @@ const WALLPAPERS = [
 ];
 
 interface SettingsProps {
+  open: boolean;
+  onClose: () => void;
   onReset: () => void;
 }
 
-export function SettingsPanel({ onReset }: SettingsProps) {
+export function SettingsPanel({ open, onClose, onReset }: SettingsProps) {
   const [token, setToken] = useState(
     () => localStorage.getItem("ha_token") || "",
   );
@@ -39,12 +41,7 @@ export function SettingsPanel({ onReset }: SettingsProps) {
   };
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <button className="p-2 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors">
-          <Settings size={16} />
-        </button>
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-80">
         <SheetHeader>
           <SheetTitle>Настройки</SheetTitle>
