@@ -19,6 +19,15 @@ export default function Home() {
     setToken(tok);
     setSaved(!!tok);
     setCards(loadConfig().cards);
+
+    // Применяем обои на body
+    const w = localStorage.getItem("ha_wallpaper") || "";
+    if (w) {
+      document.body.style.backgroundImage = `url(${w})`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+    }
   }, []);
 
   const { entities, connected, toggle } = useEntities(saved ? token : "");
@@ -29,11 +38,6 @@ export default function Home() {
     saveConfig({ cards: newCards });
   };
 
-  const [wallpaper, setWallpaper] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("ha_wallpaper") || "";
-  });
-
   const removeCard = (id: string) => {
     const newCards = cards.filter((c) => c.id !== id);
     setCards(newCards);
@@ -42,18 +46,7 @@ export default function Home() {
 
   if (!saved) {
     return (
-      <main
-        className="min-h-screen bg-background p-6"
-        style={
-          wallpaper
-            ? {
-                backgroundImage: `url(${wallpaper})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : {}
-        }
-      >
+      <main className="min-h-screen bg-background/80 backdrop-blur p-6 flex items-center justify-center">
         <div className="bg-card border border-border rounded-lg p-6 w-full max-w-md">
           <h1 className="text-xl font-bold text-foreground mb-4">Настройка</h1>
           <div className="space-y-3">
@@ -84,18 +77,7 @@ export default function Home() {
   }
 
   return (
-    <main
-      className="min-h-screen bg-background p-6"
-      style={
-        wallpaper
-          ? {
-              backgroundImage: `url(${wallpaper})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : {}
-      }
-    >
+    <main className="min-h-screen bg-background/60 backdrop-blur-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">HA Dashboard</h1>
